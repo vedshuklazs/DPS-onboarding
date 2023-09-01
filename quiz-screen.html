@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link rel="stylesheet" type="text/css" href="quiz-style.css">
+</head>
+
+<body >
+  <div class="container">
+    <h1>Quiz App</h1>
+    <span id="score_display"></span><!--current score is displayed here-->
+    <div id="safeTimerDisplay"></div> <!-- Displays timer -->
+    <div id="main-question"></div>   
+    <div id="quiz-questions">
+    <div id="question">  <!-- Question gets displayed here-->
+        <p></p>
+    </div>  <!-- Showing different options,only static structure here-->
+    <div class="option">
+        <input type="radio" id="option1" name="answers"value="A" checked=false>
+        <label for="option1" id="opt1"></label>
+    </div>
+
+    <div class="option">
+        <input type="radio" id="option2" name="answers"value="B" checked=false>
+        <label for="option2" id="opt2">B</label>
+    </div>
+
+    <div class="option">
+        <input type="radio" id="option3" name="answers" value="C" checked=false>
+        <label for="option3" id="opt3">C</label>
+    </div>
+
+    <div class="option">
+        <input type="radio" id="option4" name="answers" value="D" checked=false>
+        <label for="option4" id="opt4">D</label>
+    </div>
+
+
+
+    </div> 
+    <div id="buttons">  <!--The 2 buttons-->
+        <button type="button" id="Submit" onclick='check_answers()'>Submit</button>
+        <button type="button" id="Next" onclick='nextquestion()' dasabled="disabled">Next</button>
+    </div>
+    <div id="error-block"> <!--The error block ,dynamically edited-->
+        
+    </div>
+    <div id="final"></div>
+</div>
+</body>
+</html>
+
+<script>
+
+    //Getting data from local storage,ie from previous screen and parsing
+    console.log(localStorage.getItem("data"))
+    var data=JSON.parse(localStorage.getItem('data'))
+
+    //Global variable declarations
+    var question_no=0;
+    var score=0;
+    var time_status=0;
+    var no_of_questions=data['results'].length;
+     
+    //function call
+    showQuestions(data)
+    
+    //Function for running timer
+    function timer_repeat(){
+        var count = 15;
+        var interval = setInterval(function(){
+        document.getElementById('safeTimerDisplay').innerHTML="00:"+count; //normal
+        count--;
+
+        //Normal timeup
+        if (count === 0){
+        clearInterval(interval);         
+        document.getElementById('safeTimerDisplay').innerHTML='Timeup';
+        time_status="Timeup";
+        nextquestion();
+        }
+        
+        //Stopping timer after clicking submit
+        document.getElementById('Submit').addEventListener("click",()=>{
+            clearInterval(interval);
+            document.getElementById('safeTimerDisplay').innerHTML='Submitted in time';
+            time_status="Done in time";
+
+        })
+
+}, 1000);
+    }
+    //Function taking all options and shuffling ,returning back
+    function shuffle(options){
+        console.log("Im in shuffle function");
+
+        var random=Math.floor(Math.random() * 4);
+        console.log("Random",random);
+        console.log(options[0]);
+        var temp=options[0];
+        console.log("temp",temp);
+        options[0]=options[random];
+        console.log(options[0],options[random]);
+        options[random]=temp;
+        console.log(options[0],options[random])
+      
+        return options
+     }
+    
+    //Function to initiate dynamic question display
+    function showQuestions(questions) {
+
+        console.log("This is trial")
+        console.log(questions['results'])
+        console.log(questions['results'].length)
+        console.log(questions['results'][0]) 
+        category=questions['results'][0]['category']
+        
+        // Add for options as well​
+      
+           
+        //call to function that shows a single function
+        singleQuestion(question_no,questions);
+       
+    } 
+//function to start timer
+function start_timer(){
+    var sec = 15;
+    document.getElementById('safeTimerDisplay').innerHTML='00:'+sec;
+    sec--;
+    if (sec < 0) {
+            document.getElementById('safeTimerDisplay').innerHTML="Timeup";
+            clearInterval(timer);
+            nextquestion();
+    }
+}
+//function to stop timer
+    function stoptimer(){
+        console.log("Im stopping time");
+        clearInterval(timer);
+        document.getElementById('safeTimerDisplay').innerHTML="Submiited on time";
+        
+
+ }
+    //Function to display error
+    function displayError(error) {
+        var questionElement = document.getElementById('error-block');
+        console.log(questionElement)
+        questionElement.innerHTML = '<p>Error: ' + error.message + '</p>';
+    }
+    //After completing quiz,showing congrats and score
+    function final()
+    {
+        document.getElementById('quiz-questions').style.display="none";
+        document.getElementById('buttons').style.display="none";
+        document.getElementById('safeTimerDisplay').style.display="none";
+        document.getElementById('score_display').style.display="none"
+        if (score==no_of_questions){
+            document.getElementById('final').innerHTML="<h2>Congrats!Your score is"+score+"/"+no_of_questions+"</h2>" +"<img src='congrats.png' height=400px width=500px>";}
+        else{document.getElementById('final').innerHTML="<h2>Your score is"+score+"/"+no_of_questions+". You can do better</h2>" +"<img src='better_luck.png' height=400px width=500px>";}
+    }
+
+    //function to show single question
+    function singleQuestion(question_no,questions)
+    {
+        //At start of each Q,Timer is started
+        timer_repeat()
+        
+        //Check if further questions exist
+        if(question_no >= no_of_questions)
+        {
+           
+            document.getElementById('Submit').disabled=false;
+            document.getElementById('Next').disabled=false;
+            final()
+        }
+        if(question_no==0)
+        {
+            var click=document.querySelector('input[name="answers"]:checked');
+            console.log(click)
+            click.checked=false;
+            
+        }
+    
+        console.log("I have reached single question function")
+        //Getting html elements and setting info of each Question
+        const questionElement = document.getElementById('quiz-questions');
+        const question=document.getElementById('question')
+        
+    
+        
+        current_question=questions['results'][question_no]['question']
+        correct_answer=questions['results'][question_no]['correct_answer']
+        var incorrect_array=questions['results'][question_no]['incorrect_answers']
+        console.log(incorrect_array[0],incorrect_array[1],incorrect_array[2])
+        question.innerHTML='<p>'+current_question+'</p>';
+
+        var options=[correct_answer,incorrect_array[0],incorrect_array[1],incorrect_array[2]]
+        console.log(options)
+        var shuffled_array=shuffle(options)
+        console.log("Shuffled_array",shuffled_array)
+
+      
+        for(i=0;i<4;i++)
+        {
+            var option=document.getElementById('option'+(i+1))
+            console.log(options[i])
+            console.log(option);
+            option.value=options[i];
+            console.log(option.value);
+
+            var op=document.getElementById('opt'+(i+1));
+            op.innerHTML=option.value;
+            console.log(option)
+        }
+    }
+    function check_answers(){
+            //stoptimer(timer);
+
+            //Extracting selected answers and prep for color change
+            console.log('Im inside check_answers');
+            var select=document.querySelector('input[name="answers"]:checked')
+            console.log(select);
+            if(select===null)
+            {
+                window.alert("Please select an answer and click submit");
+            }
+            var selected=document.querySelector('input[name="answers"]:checked').value;
+            console.log("Selected:",selected);
+            console.log("correct",data['results'][question_no]['correct_answer']);
+            var correct=data['results'][question_no]['correct_answer'];
+            var par=select.parentElement;
+            var correction=0;
+           var time_status_ex=document.getElementById("safeTimerDisplay").innerHTML;
+            console.log(time_status_ex.slice(-2));
+          
+            //If correct answer,increase score and add class
+            if(correct==selected )
+            {
+                if(time_status=="Done in time" || time_status_ex=="Done in time" || time_status_ex.slice(-2) != "00" ||time_status_ex!="Timeup")
+                {score+=1;}
+                console.log("score",score);
+                correction=1;
+                var par=select.parentElement
+                par.classList.add('correct');
+            
+            }
+            //If incorrect answer,do not increase score and add incorrect class
+            if(correct!=selected)
+            {
+                score+=0;
+                console.log("Score:",0);
+                correction=0;
+                i=0;
+               //find correct answer and add class to make it green
+                for(i=0;i<4;i++)
+                {
+                 console.log("Check this");
+                var compare=document.getElementById('option'+(i+1)).value;
+                console.log(correct);
+                  if(compare== correct){
+                console.log("Found the correct answer");
+                  c_ele=document.getElementById('option'+(i+1));
+                  c_ele.parentElement.classList.add('correct');
+                  
+                  }
+                  var par=select.parentElement;
+                par.classList.add('incorrect');
+                
+               
+                }
+
+
+            }
+            
+            document.getElementById('score_display').innerHTML="<h3>current score="+score+"</h3>";
+        function show()
+{
+    document.getElementById('Next').removeAttribute('disabled');
+}
+        }
+        //Changes before displaying next question
+        function change(){
+            var achange=document.getElementsByClassName('option');
+            console.log(achange);
+            var i=0;
+            for(i=0;i<4;i++)
+            {
+                console.log(achange[i]);
+                achange[i].classList.remove('incorrect');
+                achange[i].classList.remove('correct');
+
+            }
+            var clicked=document.querySelector('input[name="answers"]:checked');
+            console.log(clicked);
+            clicked.checked=false;
+            
+        
+
+        }
+
+function show()
+{
+    document.getElementById('Next').removeAttribute('disabled');
+}
+    
+        //After clicking next
+    function nextquestion(){
+        console.log("The onclick has been clicked")
+        //check_answers()
+        
+        
+        if(question_no<no_of_questions)
+        {question_no=question_no+1;
+        console.log(question_no)
+        singleQuestion(question_no,data);
+        change();
+        }
+        //Never comes
+        else {
+            
+            exit()
+        }
+        
+    }
+    
+
+    
+    
+
+</script>

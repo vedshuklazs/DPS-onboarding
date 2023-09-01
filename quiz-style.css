@@ -1,0 +1,124 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+  } 
+  
+  .container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color:blueviolet;
+  } 
+  
+  form {
+    display: block;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  input[type="text"] {
+    align:center;
+    padding: 10px;
+    width: 70%;  
+    border-radius: 5px 0 0 5px; 
+    margin-bottom: 20px;
+  } 
+
+  input[type="number"] {
+    padding: 10px;
+    width: 70%;  
+    border-radius: 5px 0 0 5px; 
+    margin-bottom: 20px;
+  } 
+
+  input[type="radio"] {
+    border-radius: 5px 0 0 5px; 
+    margin-bottom: 20px;
+  } 
+
+  button {
+    padding: 10px 20px;  
+    background-color: #007bff;
+    color: #fff;  
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover{
+    background-color:#3498DB
+  }
+  
+  #quiz-questions {
+      text-align: center;
+  }
+
+  .dropbtn {
+      background-color: #3498DB;
+      color: white;
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+  }
+  
+  .dropbtn:hover, .dropbtn:focus {  
+    background-color: #2980B9;  
+  }
+  
+  
+  .option{
+    text-align: left;
+    background-color:#e8d2d2df;
+    border-style: solid ;
+    border-color: blueviolet ;
+    margin-bottom:5px ;
+    padding: 10px;
+  }
+  .correct{
+    background-color: #e0ffd2;
+    font-style:bold;
+
+  }
+  #error-block > p{
+    background-color: #fa6169;
+    color:white;
+    font-weight: bolder;
+    padding: 10px;
+  }
+
+  .incorrect{
+    background-color: #f76d6f;
+    font-style: bold;
+  }
+  .normal{
+    background-color: white;
+    font-style: unset;
+  }
+  #final_display{
+    color: #2f2be2;
+    margin-bottom: 15px;
+    
+  }
+  #score_display{
+    text-align: right;
+    
+  }
+  #safeTimerDisplay{
+    font-size:15px;
+    text-align:right;
+  }
+  h2{
+    color:rgb(16, 16, 16);
+    font-size:25px;
+  }
+  h3{
+    color:rgb(27, 198, 113);
+    font-size:20px;
+  }

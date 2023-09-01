@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link rel="stylesheet" type="text/css" href="quiz-style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Quiz App</h1>
+    <form id="registration-form">   <!-- The form  and its elements-->
+      <span> User Name</span>
+      <input type="text" id="user-name" placeholder="UserName">
+      <span>Email Id </span>
+      <input type="text" id="email" placeholder="Email">
+      <div id="categorys">Select Category:</div>
+        <br/>
+        <input type="radio" id="film" name="category" value="11">
+        <label for="film">Entertainment: Film</label><br>
+        <input type="radio" id="book" name="category" value="10">
+        <label for="book">Entertainment: Books</label><br>
+        <input type="radio" id="art" name="category" value="25">
+        <label for="art">Art</label> <br/>
+        <input type="radio" id="geo" name="category" value="22">
+        <label for="geo">Geography</label>
+        <br/>
+      <div id="questions">Select the number of questions</div>
+      <br>
+      <input type="number" id="number-question" placeholder="Select/Type number of questions">
+      <br/>
+      <div id="difficulty">Select Difficulty Level:</div>
+      <br>
+      <input type="radio" id="easy" name="level" value="easy">
+      <label for="easy">Easy</label><br>
+      <input type="radio" id="medium" name="level" value="medium">
+      <label for="medium">Medium</label><br>
+      <input type="radio" id="hard" name="level" value="hard">
+      <label for="hard">Hard</label>
+      <br/>
+      <button type="submit">Register</button>
+    </form>
+    <div id="quiz-questions">  <!--Part of starter code ,not used,displayed on different tab-->
+
+    </div>
+    <div id="error-block">
+        
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    //Code to run on clicking submit button
+    document.getElementById('registration-form')?.addEventListener('submit', function(event) {
+
+        event.preventDefault();
+        
+        //fetch input values and store in variable 
+        var numberOfQuestions = document.getElementById('number-question').value;
+        var name=document.getElementById('user-name').value;
+        var email=document.getElementById('email').value;
+        
+        //Checking if radio buttons are selected and fetching category,level only post that.
+        var check1=document.querySelector('input[name="category"]:checked');
+        var check2=document.querySelector('input[name="level"]:checked');
+        
+        if(check1!=null)
+        {
+            var questionCategory = document.querySelector('input[name="category"]:checked').value;   
+        }
+        if(check2!=null)
+        {
+        var level = document.querySelector('input[name="level"]:checked').value;
+        }
+        
+        
+        //Defining regex to test email
+        let regex = new RegExp('[a-z0-9]+@[a-z]+.[a-z]{2,3}');
+        console.log(regex.test(email));
+        console.log("email",email.match(regex));
+
+        //Fetching data through API after validations(throw error)
+        
+        fetch('https://opentdb.com/api.php?amount='+ numberOfQuestions + ' &category= ' + questionCategory + '&difficulty=' + level +'&type=' + 'multiple')
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error(response.status);
+            }
+            if(numberOfQuestions<5){
+                console.log("Im in no.")
+                throw new Error("Atleast 5 Questions");
+            }
+            if(name===null || name===""){
+                throw new Error("Enter your name");
+            }
+            if(email===null || regex.test(email)==false)
+            {
+                throw new Error("Please enter valid email")
+            }
+            if(check1===null)
+            {
+                throw new Error("Please select a category");  
+            }
+            if(check2===null){
+                throw new Error("Please select a level");
+            }
+           
+            return response.json();      
+        })
+        .then(function(data) {
+            //Converting json to string and setting local storage
+            trial(data)
+            console.log(JSON.stringify(data))
+            localStorage.setItem("data",JSON.stringify(data));
+            window.open("quiz-screen.html","_self");
+            
+        })
+        .catch(function(error) {
+            //displays errors of validation or api in error block.Function below
+            displayError(error);
+        });
+
+    });
+    //Not used here,Only kept as it was part of starter code 
+    function showQuestions(questions) {
+        console.log(questions)
+        const questionElement = document.getElementById('quiz-questions');
+        console.log("This is trial")
+        console.log(questions['results'])
+        console.log(questions['results'][0]) 
+        category=questions['results'][0]['category']
+        question=questions['results'][0]['question']
+        correct_answer=questions['results'][0]['correct_answer']
+        // Add for options as well​
+        questionElement.innerHTML = '<p>' + questions.results + '</p>'
+        questionElement.innerHTML = '<p>' + category + '</p>' + question + '<hr>' + correct_answer
+    }
+    //Function that displays error in error block
+    function displayError(error) {
+        var questionElement = document.getElementById('error-block');
+        console.log(questionElement)
+        questionElement.innerHTML = '<p>' + error.message + '</p>';
+    }
+    //Initially used to test how data can be extracted
+    function trial(data)
+    {
+     console.log("This is trial")
+     console.log(data['results'])
+     console.log(data['results'][0]) 
+     console.log(data['results'][0]['category'])
+     console.log(data['results'][0]['question'])
+     console.log(data['results'][0]['correct_answer'])
+    }
+
+</script>
